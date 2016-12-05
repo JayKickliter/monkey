@@ -1,8 +1,8 @@
 #[derive(Debug,PartialEq)]
 pub enum Token {
     // Special purpose tokens
-    Illegal(char),
     Eof,
+    Illegal(char),
 
     // Identifiers and literals
     Ident(String),
@@ -10,19 +10,34 @@ pub enum Token {
 
     // Operators
     Assign,
+    Asterisk,
+    Bang,
+    Minus,
     Plus,
+    Slash,
+
+    // Comparison
+    Gt,
+    Lt,
+    Eq,
+    NotEq,
 
     // Delimiters
     Comma,
     Semicolon,
 
     // Grouping
-    LParen,
-    RParen,
     LBrace,
+    LParen,
     RBrace,
+    RParen,
 
     // Keywords
+    Else,
+    False,
     Function,
+    If,
     Let,
+    Return,
+    True,
 }

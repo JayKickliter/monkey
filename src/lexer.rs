@@ -25,11 +25,16 @@ impl<'a> Lexer<'a> {
     }
 
 
-    fn lookup_keyword(id: String) -> Option<Token> {
+    fn lookup_keyword(id: String) -> Token {
         match id.as_str() {
-            "let" => Some(Token::Let),
-            "fn" => Some(Token::Function),
-            _ => Some(Token::Ident(id)),
+            "else" => Token::Else,
+            "false" => Token::False,
+            "fn" => Token::Function,
+            "if" => Token::If,
+            "let" => Token::Let,
+            "return" => Token::Return,
+            "true" => Token::True,
+            _ => Token::Ident(id),
         }
     }
 
@@ -77,8 +82,28 @@ impl<'a> Lexer<'a> {
         self.skip_whitespace();
         if let Some(c) = self.read_char() {
             match c {
-                '=' => Some(Token::Assign),
+                '=' => {
+                    if let Some(&'=') = self.peek_char() {
+                        let _ = self.read_char();
+                        Some(Token::Eq)
+                    } else {
+                        Some(Token::Assign)
+                    }
+                }
                 '+' => Some(Token::Plus),
+                '-' => Some(Token::Minus),
+                '!' => {
+                    if let Some(&'=') = self.peek_char() {
+                        let _ = self.read_char();
+                        Some(Token::NotEq)
+                    } else {
+                        Some(Token::Bang)
+                    }
+                }
+                '*' => Some(Token::Asterisk),
+                '/' => Some(Token::Slash),
+                '<' => Some(Token::Lt),
+                '>' => Some(Token::Gt),
                 ',' => Some(Token::Comma),
                 ';' => Some(Token::Semicolon),
                 '(' => Some(Token::LParen),
@@ -87,7 +112,7 @@ impl<'a> Lexer<'a> {
                 '}' => Some(Token::RBrace),
                 _ => {
                     if Self::is_letter(c) {
-                        Self::lookup_keyword(self.read_identifier(c))
+                        Some(Self::lookup_keyword(self.read_identifier(c)))
                     } else if c.is_digit(10) {
                         Some(Token::Int(self.read_number(c)))
                     } else {
@@ -115,14 +140,27 @@ mod lexer_tests {
     use ::token::Token;
     #[test]
     fn test_next_token() {
-        let input = "let five = 5;
-                     let ten = 10;
+        let input = "
+let five = 5;
+let ten = 10;
 
-                     let add = fn(x, y) {
-                          x + y;
-                     };
+let add = fn(x, y) {
+     x + y;
+};
 
-                     let result = add(five, ten);";
+let result = add(five, ten);
+!-/*5;
+5 < 10 > 5;
+
+if (5 < 10) {
+    return true;
+} else {
+    return false;
+}
+
+10 == 10;
+10 != 9;
+";
 
         let mut lexer = Lexer::new(input);
         let expected = [Some(Token::Let),
@@ -160,6 +198,43 @@ mod lexer_tests {
                         Some(Token::Comma),
                         Some(Token::Ident("ten".to_owned())),
                         Some(Token::RParen),
+                        Some(Token::Semicolon),
+                        Some(Token::Bang),
+                        Some(Token::Minus),
+                        Some(Token::Slash),
+                        Some(Token::Asterisk),
+                        Some(Token::Int("5".to_owned())),
+                        Some(Token::Semicolon),
+                        Some(Token::Int("5".to_owned())),
+                        Some(Token::Lt),
+                        Some(Token::Int("10".to_owned())),
+                        Some(Token::Gt),
+                        Some(Token::Int("5".to_owned())),
+                        Some(Token::Semicolon),
+                        Some(Token::If),
+                        Some(Token::LParen),
+                        Some(Token::Int("5".to_owned())),
+                        Some(Token::Lt),
+                        Some(Token::Int("10".to_owned())),
+                        Some(Token::RParen),
+                        Some(Token::LBrace),
+                        Some(Token::Return),
+                        Some(Token::True),
+                        Some(Token::Semicolon),
+                        Some(Token::RBrace),
+                        Some(Token::Else),
+                        Some(Token::LBrace),
+                        Some(Token::Return),
+                        Some(Token::False),
+                        Some(Token::Semicolon),
+                        Some(Token::RBrace),
+                        Some(Token::Int("10".to_owned())),
+                        Some(Token::Eq),
+                        Some(Token::Int("10".to_owned())),
+                        Some(Token::Semicolon),
+                        Some(Token::Int("10".to_owned())),
+                        Some(Token::NotEq),
+                        Some(Token::Int("9".to_owned())),
                         Some(Token::Semicolon),
                         None];
 
