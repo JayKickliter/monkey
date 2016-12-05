@@ -1,14 +1,11 @@
-use token::Token;
+mod token;
+pub use self::token::Token;
 use std::str::Chars;
 use std::iter::Peekable;
 
 
-
 pub struct Lexer<'a> {
-    // input: &'a str,
-    // pos: usize,
-    // read_position: usize,
-    input_iter: Peekable<Chars<'a>>, // ch: char,
+    input_iter: Peekable<Chars<'a>>,
 }
 
 impl<'a> Lexer<'a> {
@@ -136,8 +133,7 @@ impl<'a> Iterator for Lexer<'a> {
 
 #[cfg(test)]
 mod lexer_tests {
-    use ::lexer::Lexer;
-    use ::token::Token;
+    use ::lexer::{Token,Lexer};
     #[test]
     fn test_next_token() {
         let input = "

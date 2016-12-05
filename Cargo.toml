@@ -3,4 +3,9 @@ name = "monkey"
 version = "0.1.0"
 authors = ["Jay Kickliter <jay@kickliter.com>"]
 
+[[bin]]
+name = "monkey"
+path = "bin/main.rs"
+
 [dependencies]
+copperline = { git = "https://github.com/srijs/rust-copperline.git" }
